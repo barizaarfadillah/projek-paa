@@ -1,0 +1,26 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id       Int      @id @default(autoincrement())
+    nama     String
+    email    String   @unique
+    password String
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model Driver {
+    NIK      String   @id
+    nama     String
+    telepon  String
+    alamat   String
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
