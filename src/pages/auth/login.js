@@ -1,5 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cookie from 'js-cookie';
+import Router from "next/router";
+import cookies from "next-cookies";
+import { unauthPage } from "../../../middlewares/authorizationPage";
+
+export async function getServerSideProps(ctx) {
+    await unauthPage(ctx);
+
+    return { props: {} }
+}
 
 export default function Login() {
 
@@ -30,7 +39,7 @@ export default function Login() {
         setStatus('success');
 
         Cookie.set('token', loginRes.token);
-
+        Router.push('/stok');
     }
 
     function fileHandler(e) {
