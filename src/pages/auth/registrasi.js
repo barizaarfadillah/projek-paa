@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { unauthPage } from "../../../middlewares/authorizationPage";
+import { unauthPage } from '../../../middlewares/authorizationPage';
+import Link from 'next/link';
+import Router from 'next/router';
 
 export async function getServerSideProps(ctx) {
     await unauthPage(ctx);
@@ -19,22 +21,23 @@ export default function Register() {
     async function registerHandler(e) {
         e.preventDefault();
 
-        setStatus('loading')
+        setStatus('loading');
 
         const registerReq = await fetch('/api/auth/register', {
-            method: 'PUT',
+            method: 'POST',
             body: JSON.stringify(fields),
             headers: {
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!registerReq.ok) return setStatus('eror' + registerReq.status)
+        if (!registerReq.ok) return setStatus('error ' + registerReq.status)
 
         const registerRes = await registerReq.json();
 
         setStatus('success');
 
+        Router.push('/auth/login');
     }
 
     function fileHandler(e) {

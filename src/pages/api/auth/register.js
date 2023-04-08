@@ -1,32 +1,26 @@
-import { hash } from "bcrypt";
-import prisma from "../../../../lib/prisma";
+import prisma from '../../../../lib/prisma';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
-    if (req.method === 'PUT') {
-        const { nama, email, password } = req.body;
+    if (req.method !== 'POST') return res.status(405).end();
 
-        if (!nama || !email || !password) {
-            return res.status(400).json({ message: 'Data tidak boleh kosong' });
+    const { nama, email, password } = req.body;
+
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync(password, salt);
+
+    const register = await prisma.user.create({
+        data: {
+            nama,
+            email,
+            password: passwordHash
         }
+    });
 
-        const existingUser = await prisma.user.findUnique({ where: { email } });
 
-        if (existingUser) {
-            return res.status(400).json({ message: 'Email sudah tersedia' })
-        }
-
-        const hashedPassword = await hash(password, 10);
-
-        const user = await prisma.user.create({
-            data: {
-                nama,
-                email,
-                password: hashedPassword,
-            }
-        })
-
-        return res.status(200).json({ message: 'Registrasi akun berhasil' })
-    } else {
-        return res.status(405).end()
-    }
+    res.status(200);
+    res.json({
+        message: 'User registered successfully',
+        data: register
+    });
 }

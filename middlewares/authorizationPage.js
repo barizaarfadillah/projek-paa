@@ -1,29 +1,29 @@
-import cookies from "next-cookies";
+import cookies from 'next-cookies';
 
 export function unauthPage(ctx) {
     return new Promise(resolve => {
-        const allcookies = cookies(ctx);
+        const allCookies = cookies(ctx);
 
-        if (!allcookies.token)
-            return ctx.res.writeHead(30, 2, {
+        if (allCookies.token)
+            return ctx.res.writeHead(302, {
                 Location: '/stok'
             }).end();
 
-        return resolve('unauthorized')
-    })
+        return resolve('unauthorized');
+    });
 }
 
 export function authPage(ctx) {
     return new Promise(resolve => {
-        const allcookies = cookies(ctx);
+        const allCookies = cookies(ctx);
 
-        if (!allcookies.token)
-            return ctx.res.writeHead(30, 2, {
+        if (!allCookies.token)
+            return ctx.res.writeHead(302, {
                 Location: '/auth/login'
             }).end();
 
         return resolve({
-            token: allcookies.token
+            token: allCookies.token
         });
     });
 }

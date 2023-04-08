@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import Cookie from 'js-cookie';
-import Router from "next/router";
-import cookies from "next-cookies";
-import { unauthPage } from "../../../middlewares/authorizationPage";
+import Router from 'next/router';
+import { unauthPage } from '../../../middlewares/authorizationPage';
+import Link from 'next/link';
 
 export async function getServerSideProps(ctx) {
     await unauthPage(ctx);
@@ -11,7 +11,6 @@ export async function getServerSideProps(ctx) {
 }
 
 export default function Login() {
-
     const [fields, setFields] = useState({
         email: '',
         password: ''
@@ -22,7 +21,7 @@ export default function Login() {
     async function loginHandler(e) {
         e.preventDefault();
 
-        setStatus('loading')
+        setStatus('loading');
 
         const loginReq = await fetch('/api/auth/login', {
             method: 'POST',
@@ -32,13 +31,14 @@ export default function Login() {
             body: JSON.stringify(fields)
         });
 
-        if (!loginReq.ok) return setStatus('eror ' + loginReq.status);
+        if (!loginReq.ok) return setStatus('error ' + loginReq.status);
 
         const loginRes = await loginReq.json();
 
         setStatus('success');
 
         Cookie.set('token', loginRes.token);
+
         Router.push('/stok');
     }
 
@@ -50,6 +50,7 @@ export default function Login() {
             [name]: e.target.value
         });
     }
+
 
     return (
         <div className="bg-slate-100 h-screen flex items-center justify-center">

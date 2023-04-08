@@ -1,33 +1,32 @@
-import { compare, hash } from "bcrypt";
-import { sign } from "jsonwebtoken";
-import prisma from "../../../../lib/prisma";
-
-const JWT_SECRET = "my-secret-code"
+import prisma from '../../../../lib/prisma';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
-    if (req.method === 'POST') {
-        const { email, password } = req.body;
+    if (req.method !== 'POST') return res.status(405).end();
 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Data tidak boleh kosong' });
-        }
+    const { email, password } = req.body;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+    const checkUser = await prisma.user.findUnique({
+        where: { email }
+    });
 
-        if (!user) {
-            return res.status(401).json({ message: 'Email atau password salah' });
-        }
+    if (!checkUser) return res.status(401).end();
 
-        const passwordMatch = await compare(password, user.password);
+    const checkPassword = await bcrypt.compare(password, checkUser.password);
 
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Email atau password salah' });
-        }
+    if (!checkPassword) return res.status(401).end();
 
-        const token = sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({
+        id: checkUser.id,
+        email: checkUser.email
+    }, process.env.JWT_SECRET, {
+        expiresIn: '1h'
+    });
 
-        return res.status(200).json({ token });
-    } else {
-        return res.status(405).end()
-    }
+    res.status(200);
+    res.json({
+        message: 'Login successfully',
+        token
+    });
 }
